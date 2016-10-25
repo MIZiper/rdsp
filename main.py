@@ -1,5 +1,5 @@
 from PyQt4.QtGui import (QMainWindow, QWidget, QGridLayout, QVBoxLayout,
-    QFileDialog, QMessageBox)
+    QFileDialog, QMessageBox, QSplashScreen, QPixmap)
 from PyQt4.QtCore import QSettings, Qt
 from guidata.qthelpers import create_action, add_actions
 
@@ -22,6 +22,7 @@ class MainWindow(QMainWindow):
         self.initUI()
         self.resize(1024,768)
 
+    # def gogl(self):
         gl.progressManager = ProgressManager(self)
         gl.moduleManager = ModuleManager(
             path.join(path.dirname(__file__),MODULEDIR)
@@ -100,8 +101,13 @@ class MainWindow(QMainWindow):
 def main():
     from guidata import qapplication
     app = qapplication()
+    splash = QSplashScreen(QPixmap('test/splash.png'))
+    splash.show()
+    app.processEvents()
     win = MainWindow()
     win.show()
+    splash.finish(win)
+    # win.gogl()
     app.exec()
 
 if __name__ == '__main__':
