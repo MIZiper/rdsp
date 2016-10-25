@@ -28,11 +28,11 @@ class FilterModule(SignalContainer):
         # wp, ws: pass band freq & stop band freq
         # gp, gs: maximum loss in passband & minimum attenuation in stopband (dB)
         # N, Wn: order & dont know what
-        #-> N, Wn = buttord(wp,ws,gp,gs,analog=True)
+        #-> N, Wn = buttord(wp/(sr/2),ws/(sr/2),gp,gs)
         # b, a: dont know what & dont either
-        #-> b, a = butter(N,Wn/(sr/2),analog=True)
+        #-> b, a = butter(N,Wn)
         #-> y = filtfilt(b,a,x)
-        # in fact the Wn is close to wp
+        # in fact the Wn is close to wp/(sr/2)
         # so how to determine the order, for default setting?
         if config['type'] in ('lowpass','highpass'):
             w = config['freq']
@@ -42,7 +42,7 @@ class FilterModule(SignalContainer):
         for guid in config['tracks']:
             t = self.parent.getTrack(guid)
             Wn = w/(t.config['bandwidth']*2.56/2)
-            b, a = signal.butter(config['order'],Wn,config['type'],analog=True)
+            b, a = signal.butter(config['order'],Wn,config['type'])
             r = signal.filtfilt(b,a,t.getData()[0])
             tracks.append({
                 'name':t.name,
