@@ -169,9 +169,34 @@ class ModuleManager(object):
                         for mod in module.RDSP_Modules:
                             self.registerModule(mod)
 
+from threading import Thread
+from PyQt4 import QtGui
+import time
 class ProgressManager(object):
-    def __init__(self, mainWidget):
-        pass
+    def __init__(self, statusBar, progressBar):
+        self.statusBar = statusBar
+        self.progressBar = progressBar
+
+    def startNewProgress(self, text, func, loi):
+        # loi [count,current,finished]
+        self.statusBar.showMessage(text)
+        self.progressBar.reset()
+        self.progressBar.setVisible(True)
+        thread = Thread(target=func, args=(loi,))
+        thread.start()
+        while not loi[2]:
+            if loi[0]:
+                i = int(100*loi[1]/loi[0])
+            else:
+                i = self.progressBar.value()+5
+                if i>100: i=0
+
+            self.progressBar.setValue(i)
+            QtGui.qApp.processEvents()
+            time.sleep(0.1)
+        thread.join()
+        self.statusBar.clearMessage()
+        self.progressBar.setVisible(False)
 
 class PlotManager(object):
     def __init__(self, plotWidget):

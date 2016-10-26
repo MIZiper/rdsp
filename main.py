@@ -1,5 +1,5 @@
 from PyQt4.QtGui import (QMainWindow, QWidget, QGridLayout, QVBoxLayout,
-    QFileDialog, QMessageBox, QSplashScreen, QPixmap)
+    QFileDialog, QMessageBox, QSplashScreen, QPixmap, QProgressBar)
 from PyQt4.QtCore import QSettings, Qt
 from guidata.qthelpers import create_action, add_actions
 
@@ -22,11 +22,7 @@ class MainWindow(QMainWindow):
         self.initUI()
         self.resize(1024,768)
 
-    # def gogl(self):
-        gl.progressManager = ProgressManager(self)
-        gl.moduleManager = ModuleManager(
-            path.join(path.dirname(__file__),MODULEDIR)
-        )
+        gl.progressManager = ProgressManager(self.statusBar(),self.progress_bar)
         gl.plotManager = PlotManager(self.plot_widget)
         ProjectManager.RegisterListWidget(self.list_widget)
 
@@ -42,6 +38,13 @@ class MainWindow(QMainWindow):
             new_proj_action,open_proj_action,
             None,import_orosMat_action,None,quit_action
         ))
+
+        progress_bar = QProgressBar(self)
+        progress_bar.setFixedWidth(200)
+        progress_bar.setTextVisible(False)
+        progress_bar.setVisible(False)
+        self.progress_bar = progress_bar
+        self.statusBar().addPermanentWidget(progress_bar)
 
         main_widget = QWidget(self)
         main_layout = QGridLayout(main_widget)
@@ -98,6 +101,23 @@ class MainWindow(QMainWindow):
         self.recentSetting.setValue(RECEN_MAT,path.dirname(filename))
         gl.projectManager.importOrosMat(filename)
 
+def progressTest(loi):
+    # import time
+
+    # # loi[5,0,0]
+    # for i in range(5):
+    #     time.sleep(1)
+    #     loi[1] += 1
+
+    # # loi[0,0,0]
+    # time.sleep(5)
+
+    gl.moduleManager = ModuleManager(
+        path.join(path.dirname(__file__),MODULEDIR)
+    )
+
+    loi[2] = 1
+
 def main():
     from guidata import qapplication
     app = qapplication()
@@ -107,7 +127,7 @@ def main():
     win = MainWindow()
     win.show()
     splash.finish(win)
-    # win.gogl()
+    gl.progressManager.startNewProgress('Loading Modules',progressTest,[0,0,0])
     app.exec()
 
 if __name__ == '__main__':
