@@ -4,6 +4,7 @@ import json, uuid
 from rdsp.module import ModuleType, SignalModule, TrackModule
 from scipy.io import loadmat
 import numpy as np
+from rdsp import gl
 
 class ProjectManager(object):
     ListWidget = None
@@ -47,7 +48,11 @@ class ProjectManager(object):
         self.refresh(False)
 
     def importOrosMat(self, matpath):
-        mat = loadmat(matpath)
+        # mat = loadmat(matpath)
+        def funcname(loi):
+            loi[2] = loadmat(matpath)
+
+        mat = gl.progressManager.startNewProgress('Loading Mat',funcname,[0,0,0])
         i = 1
         tracks = []
 
@@ -179,7 +184,7 @@ class ProgressManager(object):
 
     def startNewProgress(self, text, func, loi):
         # loi [count,current,finished]
-        self.statusBar.showMessage(text)
+        self.statusBar.showMessage(text,0)
         self.progressBar.reset()
         self.progressBar.setVisible(True)
         thread = Thread(target=func, args=(loi,))
@@ -197,6 +202,7 @@ class ProgressManager(object):
         thread.join()
         self.statusBar.clearMessage()
         self.progressBar.setVisible(False)
+        return loi[2]
 
 class PlotManager(object):
     def __init__(self, plotWidget):

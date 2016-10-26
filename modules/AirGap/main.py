@@ -127,43 +127,47 @@ class AirGapModule(ModuleBase):
         rotCw = self.config['rot-cw']
         numCw = self.config['num-cw']
 
-        result = []
-        for trackSet in self.tracks:
-            track_data = trackSet['object'].getData()[0]
-            track_data_bool = track_data<((track_data.max()+track_data.min())/2)
-            track_se_pairs = findContinuous(track_data_bool,0)
-            se_idx = findSEIndex(kp_se_pairs, track_se_pairs)
-            t_pole = trackSet['pole']
-            t_thick = trackSet['thickness']
-            t_freq = trackSet['object'].config['bandwidth']*2.56
-            l = se_idx.size
-            r = {
-                'speed':np.zeros(l-1),
-                'name':trackSet['object'].name,
-                'angle':trackSet['angle'],
-                'data':np.zeros((poles,l-1))
-            }
-            dat = r['data']
-            spd = r['speed']
-            for i in range(1,l):
-                track_se_segment = track_se_pairs[se_idx[i-1]:se_idx[i],:]
-                (ll,ww) = track_se_segment.shape
-                # assert ll==numOfPoles
-                for j in range(ll):
-                    (v,c) = getAprxValue(track_data,track_se_segment[j,:],tolerance)
-                    n = t_pole+j*(-1+numCw*2)*(1-2*rotCw)
-                    if n<=0:
-                        n += poles
-                    else:
-                        if n>poles:
-                            n -= poles
-                    dat[j,i-1] = v+t_thick
-                spd[i-1] = 60*t_freq/(
-                    track_se_pairs[se_idx[i],0] - track_se_pairs[se_idx[i-1],0]
-                )
-            result.append(r)
-        gl.projectManager.saveResult(self.guid, result)
-        self.result = np.array(result)
+        def funcname(loi):
+            result = []
+            for trackSet in self.tracks:
+                track_data = trackSet['object'].getData()[0]
+                track_data_bool = track_data<((track_data.max()+track_data.min())/2)
+                track_se_pairs = findContinuous(track_data_bool,0)
+                se_idx = findSEIndex(kp_se_pairs, track_se_pairs)
+                t_pole = trackSet['pole']
+                t_thick = trackSet['thickness']
+                t_freq = trackSet['object'].config['bandwidth']*2.56
+                l = se_idx.size
+                r = {
+                    'speed':np.zeros(l-1),
+                    'name':trackSet['object'].name,
+                    'angle':trackSet['angle'],
+                    'data':np.zeros((poles,l-1))
+                }
+                dat = r['data']
+                spd = r['speed']
+                for i in range(1,l):
+                    track_se_segment = track_se_pairs[se_idx[i-1]:se_idx[i],:]
+                    (ll,ww) = track_se_segment.shape
+                    # assert ll==numOfPoles
+                    for j in range(ll):
+                        (v,c) = getAprxValue(track_data,track_se_segment[j,:],tolerance)
+                        n = t_pole+j*(-1+numCw*2)*(1-2*rotCw)
+                        if n<=0:
+                            n += poles
+                        else:
+                            if n>poles:
+                                n -= poles
+                        dat[j,i-1] = v+t_thick
+                    spd[i-1] = 60*t_freq/(
+                        track_se_pairs[se_idx[i],0] - track_se_pairs[se_idx[i-1],0]
+                    )
+                result.append(r)
+                loi[1] += 1
+            gl.projectManager.saveResult(self.guid, result)
+            self.result = np.array(result)
+            loi[2] = 1
+        gl.progressManager.startNewProgress('Calculating',funcname,[len(self.tracks),0,0])
 
         self.processed = True
         self.resultLoaded = True
