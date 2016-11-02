@@ -204,9 +204,38 @@ class ProgressManager(object):
         self.progressBar.setVisible(False)
         return loi[2]
 
+from guiqwt.plot import PlotManager as pltMng
+from rdsp.widgets import TrackWidget
+import guiqwt.tools as tl
 class PlotManager(object):
-    def __init__(self, plotWidget):
+    def __init__(self, toolBar, plotWidget, window):
+        self.toolBar = toolBar
         self.plotWidget = plotWidget
+        self.window = window
+        self.manager = pltMng(window)
+        
+        tw = TrackWidget()
+        self.addWidget('Display',tw)
+        self.manager.add_plot(tw.get_plot())
+        self.trackWidget = tw
+        self.setupManager()
+
+    def setupManager(self):
+        manager = self.manager
+        manager.add_toolbar(self.toolBar)
+        # add tools
+        # manager.add_tool(tl.SelectTool)
+        # manager.add_tool(tl.RectZoomTool)
+        # manager.add_tool(tl.HRangeTool)
+        # manager.add_tool(tl.SaveAsTool)
+        # manager.add_tool(tl.CopyToClipboardTool)
+        # # manager.add_tool(tl.ItemListPanelTool)
+        # manager.add_tool(tl.AxisScaleTool)
+        manager.register_all_curve_tools()
+
+    def plotNew(self, xy):
+        self.trackWidget.clear()
+        self.trackWidget.addCurve(xy)
 
     def addWidget(self, name, widget):
         self.plotWidget.addWidget(name, widget)

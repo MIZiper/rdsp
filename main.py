@@ -23,7 +23,7 @@ class MainWindow(QMainWindow):
         self.resize(1024,768)
 
         gl.progressManager = ProgressManager(self.statusBar(),self.progress_bar)
-        gl.plotManager = PlotManager(self.plot_widget)
+        gl.plotManager = PlotManager(self.toolBar, self.plot_widget, self)
         ProjectManager.RegisterListWidget(self.list_widget)
 
     def initUI(self):
@@ -45,6 +45,8 @@ class MainWindow(QMainWindow):
         progress_bar.setVisible(False)
         self.progress_bar = progress_bar
         self.statusBar().addPermanentWidget(progress_bar)
+
+        self.toolBar = self.addToolBar('Curves')
 
         main_widget = QWidget(self)
         main_layout = QGridLayout(main_widget)

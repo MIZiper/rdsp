@@ -1,7 +1,7 @@
 from enum import IntEnum
 from rdsp import gl
 from PyQt4 import QtGui
-import uuid
+import uuid, numpy as np
 
 class ModuleType(IntEnum):
     none = 0
@@ -207,6 +207,10 @@ class TrackModule(ModuleBase):
     ModuleName = 'Track'
     ModuleType = ModuleType.config
 
+    ContextMenu = [
+        {'title':'Plot', 'action':'plot'}
+    ]
+
     def __init__(self, guid, name, parent, data=None):
         super().__init__(guid,name,parent)
         self.data = data
@@ -238,3 +242,14 @@ class TrackModule(ModuleBase):
 
     def parseConfig(self, config):
         self.config = config
+
+    def getPlotData(self):
+        data = self.getData()
+        l = data.size / (self.config['bandwidth']*2.56)
+        d = 1 / (self.config['bandwidth']*2.56)
+        xs = np.arange(0,l,d)
+        return (xs,data[0])
+
+    def plot(self):
+        xy = self.getPlotData()
+        tw = gl.plotManager.plotNew(xy)

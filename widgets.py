@@ -4,6 +4,8 @@ from PyQt4 import QtGui
 from PyQt4.QtCore import Qt
 from guidata.qthelpers import create_action, add_actions
 import functools
+from guiqwt.plot import CurveWidget
+from guiqwt.builder import make
 
 class ListWidget(QtGui.QTreeWidget):
     def __init__(self, parent=None):
@@ -69,6 +71,15 @@ class PropertyWidget(QtGui.QListWidget):
         for (k,v) in prop.items():
             self.addItem(k)
             self.addItem(' '+str(v))
+
+class TrackWidget(CurveWidget):
+    def addCurve(self, xy):
+        (x,y) = xy
+        curve = make.curve(x,y)
+        self.plot.add_item(curve)
+
+    def clear(self):
+        self.plot.del_all_items()
 
 class PlotWidget(QtGui.QTabWidget):
     def addWidget(self, name, widget):
