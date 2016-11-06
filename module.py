@@ -246,8 +246,7 @@ class TrackModule(ModuleBase):
     def getPlotData(self):
         data = self.getData()
         l = data.size / (self.config['bandwidth']*2.56)
-        d = 1 / (self.config['bandwidth']*2.56)
-        xs = np.arange(0,l,d)
+        xs = np.linspace(0,l,data.size,False)
         return (xs,data[0])
 
     def plot(self):
