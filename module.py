@@ -208,7 +208,8 @@ class TrackModule(ModuleBase):
     ModuleType = ModuleType.config
 
     ContextMenu = [
-        {'title':'Plot', 'action':'plot'}
+        {'title':'Plot', 'action':'plot'},
+        {'title':'Add2Plot', 'action':'add2Plot'}
     ]
 
     def __init__(self, guid, name, parent, data=None):
@@ -250,5 +251,9 @@ class TrackModule(ModuleBase):
         return (xs,data[0])
 
     def plot(self):
-        xy = self.getPlotData()
-        tw = gl.plotManager.plotNew(xy)
+        x,y = self.getPlotData()
+        tw = gl.plotManager.plotNew((self.name,x,y))
+
+    def add2Plot(self):
+        x,y = self.getPlotData()
+        tw = gl.plotManager.plotOver((self.name,x,y))

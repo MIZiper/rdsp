@@ -207,6 +207,16 @@ class ProgressManager(object):
 from guiqwt.plot import PlotManager as pltMng
 from rdsp.widgets import TrackWidget
 import guiqwt.tools as tl
+from rdsp.plugins import RangePickerTool, VCursorTool
+
+def colorGen():
+    while True:
+        # for i in ['-','--',':','-.']:
+        #     for j in ['r','g','b','c','m','y','k','G']:
+        #         yield j+i
+        for i in ['r','g','b','c','m','y','k','G']:
+            yield i
+
 class PlotManager(object):
     def __init__(self, toolBar, plotWidget, window):
         self.toolBar = toolBar
@@ -220,22 +230,50 @@ class PlotManager(object):
         self.trackWidget = tw
         self.setupManager()
 
+        self.txy = []
+        self.colorGen = colorGen()
+
     def setupManager(self):
         manager = self.manager
         manager.add_toolbar(self.toolBar)
         # add tools
-        # manager.add_tool(tl.SelectTool)
-        # manager.add_tool(tl.RectZoomTool)
+        t = manager.add_tool(tl.SelectTool)
+        manager.set_default_tool(t)
+        manager.add_tool(tl.RectZoomTool)
+        manager.add_separator_tool()
+        manager.add_tool(tl.BasePlotMenuTool,'item')
+        manager.add_tool(tl.BasePlotMenuTool,'grid')
+        manager.add_tool(tl.BasePlotMenuTool,'axes')
+        manager.add_tool(tl.AxisScaleTool)
+        manager.add_separator_tool()
         # manager.add_tool(tl.HRangeTool)
-        # manager.add_tool(tl.SaveAsTool)
-        # manager.add_tool(tl.CopyToClipboardTool)
-        # # manager.add_tool(tl.ItemListPanelTool)
-        # manager.add_tool(tl.AxisScaleTool)
-        manager.register_all_curve_tools()
+        manager.add_tool(RangePickerTool)
+        # manager.add_tool(tl.VCursorTool)
+        manager.add_tool(VCursorTool)
+        if manager.get_itemlist_panel():
+            manager.add_tool(tl.ItemListPanelTool)
+        manager.add_tool(tl.DeleteItemTool)
+        manager.add_separator_tool()
+        manager.add_tool(tl.SaveAsTool)
+        manager.add_tool(tl.ExportItemDataTool)
+        manager.add_tool(tl.CopyToClipboardTool)
 
-    def plotNew(self, xy):
+        manager.update_tools_status()
+        manager.get_default_tool().activate()
+
+    def getTXYs(self):
+        return self.txy
+
+    def plotNew(self, txy):
+        # self.colorGen = colorGen
         self.trackWidget.clear()
-        self.trackWidget.addCurve(xy)
+        self.txy.clear()
+        self.trackWidget.addCurve(txy,next(self.colorGen))
+        self.txy.append(txy)
+
+    def plotOver(self, txy):
+        self.trackWidget.addCurve(txy,next(self.colorGen))
+        self.txy.append(txy)
 
     def addWidget(self, name, widget):
         self.plotWidget.addWidget(name, widget)

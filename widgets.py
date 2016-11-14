@@ -73,13 +73,18 @@ class PropertyWidget(QtGui.QListWidget):
             self.addItem(' '+str(v))
 
 class TrackWidget(CurveWidget):
-    def addCurve(self, xy):
-        (x,y) = xy
-        curve = make.curve(x,y)
+    legend = None
+    def addCurve(self, txy, color=None):
+        (t,x,y) = txy
+        curve = make.curve(x,y,t,color)
         self.plot.add_item(curve)
+        if self.legend is None:
+            self.legend = make.legend()
+            self.plot.add_item(self.legend)
 
     def clear(self):
         self.plot.del_all_items()
+        self.legend = None
 
 class PlotWidget(QtGui.QTabWidget):
     def addWidget(self, name, widget):
