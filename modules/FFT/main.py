@@ -294,9 +294,16 @@ class FFTFreqModule(ModuleBase):
         pass
 
     def showResult(self):
-        data = self.getData()
-        widget = FFTFreqWidget(data)
-        gl.plotManager.addWidget(self.name,widget)
+        result = self.getData()
+        # result {'data','bandwidth','overlap'}
+        # widget = FFTFreqWidget(data)
+        # gl.plotManager.addWidget(self.name,widget)
+        d = result['data']
+        (l,w) = d.shape
+        sr = result['bandwidth']*2.56
+        x = np.fft.fftfreq(2*w,1/sr)[:w]
+        y = d.mean(0)
+        gl.plotManager.plotNew((self.name,x,y))
 
     def showStft(self):
         rp = DisplayRangePicker(maxFreq=self.track.config['bandwidth'])
