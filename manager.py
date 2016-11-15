@@ -207,7 +207,7 @@ class ProgressManager(object):
 from guiqwt.plot import PlotManager as pltMng
 from rdsp.widgets import TrackWidget
 import guiqwt.tools as tl
-from rdsp.plugins import RangePickerTool, VCursorTool
+from rdsp.plugins import RangePickerTool, VCursorTool, RangeValueTool
 
 def colorGen():
     while True:
@@ -250,6 +250,7 @@ class PlotManager(object):
         manager.add_tool(RangePickerTool)
         # manager.add_tool(tl.VCursorTool)
         manager.add_tool(VCursorTool)
+        manager.add_tool(RangeValueTool)
         if manager.get_itemlist_panel():
             manager.add_tool(tl.ItemListPanelTool)
         manager.add_tool(tl.DeleteItemTool)

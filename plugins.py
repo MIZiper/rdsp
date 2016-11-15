@@ -41,6 +41,40 @@ class RangePickerTool(BaseCursorTool):
             self.shape = None
             self.SIG_TOOL_JOB_FINISHED.emit()
 
+from spyderlib.widgets.variableexplorer import arrayeditor
+class RangeValueTool(BaseCursorTool):
+    TITLE = 'Range Value'
+    ICON = 'imagestats.png'
+    SWITCH_TO_DEFAULT_TOOL = True
+
+    def create_shape(self):
+        return XRangeSelection(0,0)
+
+    def end_move(self, filter, event):
+        if self.shape is not None:
+            plot = filter.plot
+            TXYs = gl.plotManager.getTXYs()
+            if len(TXYs)==1:
+                editor = arrayeditor.ArrayEditor()
+                tt,xx,yy = TXYs[0]
+                x0,x1 = self.shape.get_range()
+                idx0 = np.searchsorted(xx,x0)
+                idx1 = np.searchsorted(xx,x1)
+                a = np.array([xx[idx0:idx1],yy[idx0:idx1]])
+                if editor.setup_and_check(a,tt):
+                    editor.exec()
+
+            self.shape.detach()
+            self.shape = None
+            self.SIG_TOOL_JOB_FINISHED.emit()
+
+    # def update_status(self, plot):
+    #     if gl.plotManager is None:
+    #         self.action.setEnabled(False)
+    #     else:
+    #         txys = gl.plotManager.getTXYs()
+    #         self.action.setEnabled(len(txys)==1)
+
 class YofX(ObjectInfo):
     def __init__(self, xMark, txy):
         self.mark = xMark
